@@ -4,7 +4,37 @@ const generateToken = require("../utils/generateToken");
 const getUsers = async (req, res) => {
   try {
     const allUsers = await User.find();
-    res.status(200).json(allUsers);
+    res.status(200).json({message: "All user profiles successfully aquired", allUsers});
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// @desc    Get a user
+// rout     GET /api/use/profile
+// @access  Private
+const getUserProfile = async (req, res) => {
+  try {
+    const user = req.user;
+
+    res
+      .status(200)
+      .json({ message: "User profile successfully aquired", user });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// @desc    Logout a user
+// rout     POST /api/user/logout
+// @access  Public
+const logoutUser = async (req, res) => {
+  try {
+    res.cookie("ecomms_user", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    res.status(200).json({ message: "User Logged Out" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -14,19 +44,24 @@ const getUsers = async (req, res) => {
 // rout     POST /api/user/login
 // @access  Public
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-  if (user && (await user.matchPasswords(password))) {
-    generateToken(res, user._id);
-    console.log("Login: User Logged In");
-    res
-      .status(201)
-      .json({ _id: user._id, username: user.username, email: user.email });
-  } else {
-    res.status(401);
-    throw new Error("Invalid email or password");
+    if (user && (await user.matchPasswords(password))) {
+      generateToken(res, user._id);
+      console.log("Login: User Logged In");
+      res.status(201).json({
+        message: "User successfully logged in",
+        user: { _id: user._id, username: user.username, email: user.email },
+      });
+    } else {
+      res.status(401);
+      throw new Error("Invalid email or password");
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -57,18 +92,48 @@ const registerUser = async (req, res) => {
 
     if (newUser) {
       generateToken(res, newUser._id);
-      console.log("Registered: New User");
       res.status(201).json({
-        _id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
+        message: "User successfully registered",
+        user: {
+          _id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+        },
       });
     } else {
       res.status(401).json(401);
       throw new Error("Invalid email or password");
     }
   } catch (error) {
-    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// @desc    Logout a user
+// rout     PUT /api/use/profile
+// @access  Private
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-__v");
+
+    if (user) {
+      user.username = req.body.username || user.username;
+      user.email = req.body.email || user.email;
+      if (req.body.password) {
+        user.password = req.body.password;
+      }
+
+      const updatedUser = await user.save();
+
+      res
+        .status(200)
+        .json({ message: "User profile successfully updated", updatedUser });
+    } else {
+      res.status(404);
+      throw new Error("User could not be found");
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -76,4 +141,7 @@ module.exports = {
   getUsers,
   registerUser,
   loginUser,
+  logoutUser,
+  getUserProfile,
+  updateUserProfile,
 };

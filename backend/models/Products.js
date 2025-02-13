@@ -7,8 +7,9 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     price: {
-      type: Number,
+      type: mongoose.Schema.Types.Decimal128, // when retrieving data, you need to convert it to a string
       required: true,
+      min: 0,
     },
     image: {
       type: String,
@@ -19,3 +20,7 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+const Product = mongoose.model('Product', productSchema);
+
+module.exports = Product;

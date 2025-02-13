@@ -15,11 +15,9 @@ const protectRoute = async (req, res, next) => {
       next();
     } catch (error) {
       res.status(401).json({ message: "Not authorized or invalid token" });
-      throw new Error("Not authorized, invalid token");
     }
   } else {
-    res.status(401);
-    throw new Error("Not authorized: no token");
+    res.status(401).json({ message: "Not authorized: no token" });
   }
 };
 
