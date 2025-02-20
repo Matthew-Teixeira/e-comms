@@ -8,7 +8,7 @@ const {
 const { protectRoute, adminRoute, superUserRoute } = require("../../middleware/authMiddleware");
 
 router.post("/add/:shopId", protectRoute, adminRoute, createProduct);
-router.get("/all", protectRoute, adminRoute, getAllProducts);
+router.get("/all", getAllProducts);
 router.delete("/remove/:productId/:shopId", protectRoute, adminRoute, deleteProduct);
 
 module.exports = router;
