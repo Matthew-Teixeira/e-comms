@@ -3,8 +3,10 @@ const generateToken = require("../utils/generateToken");
 
 const getUsers = async (req, res) => {
   try {
-    const allUsers = await User.find();
-    res.status(200).json({message: "All user profiles successfully aquired", allUsers});
+    const allUsers = await User.find().populate("shopId");
+    res
+      .status(200)
+      .json({ message: "All user profiles successfully aquired", allUsers });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -69,7 +71,8 @@ const loginUser = async (req, res) => {
 // rout     POST /api/user
 // @access  Public
 const registerUser = async (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
+  const { username, email, admin, superUser, password, confirmPassword } =
+    req.body;
 
   try {
     if (password !== confirmPassword) {
@@ -87,6 +90,8 @@ const registerUser = async (req, res) => {
     const newUser = await User.create({
       username,
       email,
+      admin,
+      superUser,
       password,
     });
 
@@ -114,11 +119,12 @@ const registerUser = async (req, res) => {
 // @access  Private
 const updateUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-__v");
+    const user = await User.findById(req.params.user_id).select("-__v");
 
     if (user) {
       user.username = req.body.username || user.username;
       user.email = req.body.email || user.email;
+      user.shopId = req.body.shopId || user.shopId;
       if (req.body.password) {
         user.password = req.body.password;
       }

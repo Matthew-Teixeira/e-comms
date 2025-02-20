@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -16,6 +16,15 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    admin: {
+      type: Boolean,
+      required: true,
+    },
+    superUser: {
+      type: Boolean,
+      required: true,
+    },
+    shopId: { type: mongoose.Schema.Types.ObjectId, ref: "Shop" },
   },
   {
     timestamps: true,

@@ -7,14 +7,14 @@ const {
   getUserProfile,
   updateUserProfile
 } = require("../../controllers/userControllers");
-const protectRoute = require("../../middleware/authMiddleware");
+const { protectRoute, adminRoute, superUserRoute } = require("../../middleware/authMiddleware");
 
 router.get("/all", protectRoute, getUsers);
 router.get("/profile", protectRoute, getUserProfile);
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
-router.put("/profile", protectRoute, updateUserProfile);
+router.put("/profile/:user_id", protectRoute, updateUserProfile);
 
 
 module.exports = router;

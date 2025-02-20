@@ -2,11 +2,13 @@ const router = require("express").Router();
 const {
   createProduct,
   getAllProducts,
+  deleteProduct
 } = require("../../controllers/productController");
 
-const protectRoute = require("../../middleware/authMiddleware");
+const { protectRoute, adminRoute, superUserRoute } = require("../../middleware/authMiddleware");
 
-router.post("/add", protectRoute, createProduct);
-router.get("/all", protectRoute, getAllProducts);
+router.post("/add/:shopId", protectRoute, adminRoute, createProduct);
+router.get("/all", protectRoute, adminRoute, getAllProducts);
+router.delete("/remove/:productId/:shopId", protectRoute, adminRoute, deleteProduct);
 
 module.exports = router;
